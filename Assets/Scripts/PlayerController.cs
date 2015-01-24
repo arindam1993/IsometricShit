@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour {
 	public Transform playerOnRoofTransfrom;
 	public Transform playerOnFloorTransform;
 
+	public GameObject head; 
+
 
 
 	//Rotation bitches
@@ -78,7 +80,9 @@ public class PlayerController : MonoBehaviour {
 				targetPosition = hit.point;
 				//Debug.Log(targetPosition);
 			}
-			characterGeometry.LookAt(targetPosition);
+			// characterGeometry.LookAt(targetPosition);
+			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
+			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
 
 			controller.Move(g);
 
@@ -115,7 +119,9 @@ public class PlayerController : MonoBehaviour {
 				targetPosition = hit.point;
 				//Debug.Log(targetPosition);
 			}
-			characterGeometry.LookAt(targetPosition);
+			// characterGeometry.LookAt(targetPosition);
+			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
+			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
 
 			Vector3 strafe = -1 * character.forward * Input.GetAxis("Vertical");
 			Vector3 forward = -1 * character.right * Input.GetAxis("Horizontal");
@@ -161,7 +167,7 @@ public class PlayerController : MonoBehaviour {
 //				Debug.Log("Switching Original");
 				//Move the camera to the roof
 				Vector3 moveVector = transform.position + strafe + forward;
-				Vector3 finalPosition = new Vector3(moveVector.x, 7.65f, moveVector.z);
+				Vector3 finalPosition = new Vector3(moveVector.x, 7.45f, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 				//Move the player to the roof
@@ -201,7 +207,7 @@ public class PlayerController : MonoBehaviour {
 
 				//Move the player to the floor
 				Vector3 moveVector = transform.position + strafe + forward;
-				Vector3 finalPosition = new Vector3(moveVector.x, 2.65f, moveVector.z);
+				Vector3 finalPosition = new Vector3(moveVector.x, 2.85f, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 				//Move the player to the floor
@@ -246,9 +252,8 @@ public class PlayerController : MonoBehaviour {
 
 		}
 
-		if(_playerState == PlayerState.Death){
 
-		}
 	
 	}
+
 }
