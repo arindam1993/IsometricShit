@@ -3,13 +3,14 @@ using System.Collections;
 
 public class CameraRotateBetter : MonoBehaviour {
 
+	public Transform finalTransform;
 	private Quaternion finalRotation;
 	private Quaternion initialRotation;
 
 	// Use this for initialization
 	void Start () {
-		initialRotation = transform.localRotation;
-		finalRotation = Quaternion.AngleAxis(180, transform.right);
+		initialRotation = transform.rotation;
+		finalRotation = finalTransform.rotation;
 
 	}
 	
@@ -22,8 +23,8 @@ public class CameraRotateBetter : MonoBehaviour {
 	}
 
 	IEnumerator rotateFocus(){
-		while(transform.localRotation != finalRotation){
-			transform.localRotation = Quaternion.Lerp(initialRotation, finalRotation, 5 * Time.deltaTime);
+		while(true){
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, finalRotation, 5);
 			yield return null;
 		}
 	}

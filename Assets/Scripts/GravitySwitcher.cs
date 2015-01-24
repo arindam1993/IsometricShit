@@ -23,7 +23,7 @@ public class GravitySwitcher : MonoBehaviour {
 
 	IEnumerator moveToRoof(){
 		while(transform.position != finalPositon){
-			transform.position = Vector3.Lerp(initialPosition, finalPositon, 5 * Time.deltaTime);
+			transform.position = Vector3.MoveTowards(transform.position, finalPositon, 5 * Time.deltaTime);
 			yield return null;
 		}
 	}
