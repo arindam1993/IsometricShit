@@ -36,39 +36,50 @@ public class PlayerController : MonoBehaviour {
 	//Speeds 
 	public float cameraRotateSpeed;
 	public float playerJumpSpeed;
+	public float playerSpeed;
 
 	//Movement Stuff
-	public LayerMask _layerMask;
+	private LayerMask _layerMask;
+	public LayerMask _layerMaskFloor;
+	public LayerMask _layerMaskRoof;
 	public float moveSpeed;
 	private Vector3 targetPosition;
-	private CharacterController con;
+	private CharacterController controller;
+	public Transform character;
+	private Transform characterGeometry;
 
 	//Camera
 	public Camera cullCamera;
 
+	//Gravity Vector
+	private Vector3 g;
+
 
 	// Use this for initialization
 	void Start () {
-		floorTransfrom = transform.FindChild("cameraFocus").transform;
 		cameraFocusTransform = floorTransfrom;
-		roofTransform = transform.FindChild("rotated").transform;
-		floorCameraRotation = floorTransfrom.rotation;
-		roofCameraRotation = roofTransform.rotation;
-		_playerState = PlayerState.Idle;
+		_playerState = PlayerState.Moving;
 		_gravityState = GravityState.Floor;
-
-		//playerOnFloorTransform = transform;
-
-		con = GetComponent<CharacterController>();
-	
+		characterGeometry = character.FindChild("characterGeometry");
+		controller = character.GetComponent<CharacterController>();
+		_layerMask = _layerMaskFloor;
+		g = new Vector3(0, - 10 , 0);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		//Idle state: play idle animation
+		//Idle state: play idle animation and look at mouse
 		if(_playerState == PlayerState.Idle){
 
+			RaycastHit hit;
+			if (Physics.Raycast(cullCamera.ScreenPointToRay(Input.mousePosition), out hit, 1000, _layerMask)) {
+				targetPosition = hit.point;
+				Debug.Log(targetPosition);
+			}
+			characterGeometry.LookAt(targetPosition);
+
+			controller.Move(g);
 
 			//If player presses WSAD
 			if(Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal")!= 0){
@@ -77,14 +88,6 @@ public class PlayerController : MonoBehaviour {
 
 			//If player presses space switch state
 			if(Input.GetKeyDown(KeyCode.Space)){
-//				if(_gravityState == GravityState.Floor){
-//					_gravityState = GravityState.Roof;
-//					_playerState = PlayerState.Switching;
-//				}
-//				if(_gravityState == GravityState.Roof){
-//					_gravityState = GravityState.Floor;
-//					_playerState = PlayerState.Switching;
-//				}
 				_playerState = PlayerState.Switching;
 
 				//Determine the culling mask
@@ -105,20 +108,41 @@ public class PlayerController : MonoBehaviour {
 		if(_playerState == PlayerState.Moving){
 
 
-			//For switching to idle check velocity
-			if(con.velocity.magnitude < 0.2){
-				_playerState = PlayerState.Idle;
+			RaycastHit hit;
+			if (Physics.Raycast(cullCamera.ScreenPointToRay(Input.mousePosition), out hit, 1000, _layerMask)) {
+				targetPosition = hit.point;
+				Debug.Log(targetPosition);
 			}
+			characterGeometry.LookAt(targetPosition);
+
+			Vector3 strafe = -1 * character.forward * Input.GetAxis("Vertical");
+			Vector3 forward = -1 * character.right * Input.GetAxis("Horizontal");
+			controller.Move(forward * playerSpeed * Time.deltaTime);
+			controller.Move(strafe * playerSpeed * Time.deltaTime);
+			controller.Move(g);
+
+			transform.position = character.position;
+			
+
+			//For switching to idle check velocity
+//			if(controller.velocity.magnitude < 0.2){
+//				_playerState = PlayerState.Idle;
+//			}
 
 			//Spacebar to switch to roof/floor
 			if(Input.GetKeyDown(KeyCode.Space)){
+				_playerState = PlayerState.Switching;
+				
+				//Determine the culling mask
 				if(_gravityState == GravityState.Floor){
-					_gravityState = GravityState.Roof;
-					_playerState = PlayerState.Switching;
+					cullCamera.cullingMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("TransparentFX")) 
+						| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
+							| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Roof"));
 				}
 				if(_gravityState == GravityState.Roof){
-					_gravityState = GravityState.Floor;
-					_playerState = PlayerState.Switching;
+					cullCamera.cullingMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("TransparentFX")) 
+						| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
+							| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 				}
 			}
 		}
@@ -127,22 +151,27 @@ public class PlayerController : MonoBehaviour {
 			if(_gravityState == GravityState.Floor){
 				//Rotate camera around and flip the model
 
+
+				//Move the camera to the roof
+				Vector3 finalPosition = new Vector3(transform.position.x, 7.65f, transform.position.z);
+				transform.position = Vector3.MoveTowards(transform.position, finalPosition, playerJumpSpeed * Time.deltaTime);
+
 				//Move the player to the roof
-				transform.position = Vector3.MoveTowards(transform.position, playerOnRoofTransfrom.position, playerJumpSpeed * Time.deltaTime);
-
-
+				character.position = Vector3.MoveTowards(transform.position, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 				//Rotate the camera to the roof
-				//cameraFocusTransform.rotation = Quaternion.RotateTowards(cameraFocusTransform.rotation, roofCameraRotation, cameraRotateSpeed * Time.deltaTime);
-
-				//Rotate the player to the roof
-				Quaternion lookRotation = Quaternion.LookRotation(playerOnRoofTransfrom.forward, playerOnRoofTransfrom.up);
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, playerOnRoofTransfrom.rotation, cameraRotateSpeed * Time.deltaTime);
 
+				//Rotate the player to the roof
+				character.rotation = Quaternion.RotateTowards(transform.rotation, playerOnRoofTransfrom.rotation, cameraRotateSpeed * Time.deltaTime);
+
+				_layerMask = _layerMaskRoof;
+
 				//Switch the state
-				if(transform.rotation == playerOnRoofTransfrom.rotation && transform.position == playerOnRoofTransfrom.position){
+				if(transform.rotation == playerOnRoofTransfrom.rotation && transform.position == finalPosition){
 					_gravityState = GravityState.Roof;
 					_playerState = PlayerState.Idle;
+					g *= -1;
 				}
 
 
@@ -151,22 +180,31 @@ public class PlayerController : MonoBehaviour {
 				//Rotate camera around and flip the model
 
 				//Move the player to the floor
-				transform.position = Vector3.MoveTowards(transform.position, playerOnFloorTransform.position, playerJumpSpeed * Time.deltaTime);
-				
+				Vector3 finalPosition = new Vector3(transform.position.x, 2.65f, transform.position.z);
+				transform.position = Vector3.MoveTowards(transform.position, finalPosition, playerJumpSpeed * Time.deltaTime);
+
+				//Move the player to the floor
+				character.position = Vector3.MoveTowards(transform.position, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 
 
 				//Rotate the camera to the floor
 				//cameraFocusTransform.rotation = Quaternion.RotateTowards(cameraFocusTransform.rotation, floorCameraRotation, cameraRotateSpeed * Time.deltaTime);
 
-				//Rotate the player to th floor
+				//Rotate the camera to th floor
 				Quaternion lookRotation = Quaternion.LookRotation(playerOnFloorTransform.forward, playerOnFloorTransform.up);
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, playerOnFloorTransform.rotation, cameraRotateSpeed * Time.deltaTime);
 
+				//Rotate the player to the floor
+				character.rotation = Quaternion.RotateTowards(transform.rotation, playerOnFloorTransform.rotation, cameraRotateSpeed * Time.deltaTime);
+
+				_layerMask = _layerMaskFloor;
+
 				//Switch the state
-				if(transform.rotation == playerOnFloorTransform.rotation && transform.position == playerOnFloorTransform.position){
+				if(transform.rotation == playerOnFloorTransform.rotation && transform.position == finalPosition){
 					_gravityState = GravityState.Floor;
 					_playerState = PlayerState.Idle;
+					g *= -1;
 				}
 				
 			}
