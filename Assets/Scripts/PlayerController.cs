@@ -123,8 +123,8 @@ public class PlayerController : MonoBehaviour {
 			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
 			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
 
-			Vector3 strafe = characterGeometry.forward * Input.GetAxis("Vertical");
-			Vector3 forward = characterGeometry.right * Input.GetAxis("Horizontal");
+			Vector3 strafe = -1 * character.forward * Input.GetAxis("Horizontal");
+			Vector3 forward = -1 * character.right * Input.GetAxis("Vertical");
 			controller.Move(forward * playerSpeed * Time.deltaTime);
 			controller.Move(strafe * playerSpeed * Time.deltaTime);
 			controller.Move(g);
@@ -159,8 +159,8 @@ public class PlayerController : MonoBehaviour {
 		if(_playerState == PlayerState.Switching){
 			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
 			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
-			Vector3 strafe = -1 * characterGeometry.forward * Input.GetAxis("Vertical");
-			Vector3 forward = -1 * characterGeometry.right * Input.GetAxis("Horizontal");
+			Vector3 strafe = -1 * character.forward * Input.GetAxis("Horizontal");
+			Vector3 forward = -1 * character.right * Input.GetAxis("Vertical");
 			strafe = strafe * playerGravitySpeed * Time.deltaTime;
 			forward = forward * playerGravitySpeed * Time.deltaTime;
 			if(_gravityState == GravityState.Floor){
