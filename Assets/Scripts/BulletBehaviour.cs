@@ -7,9 +7,12 @@ public class BulletBehaviour : MonoBehaviour {
 
 	private float currentSpeed;
 
+	public GameObject player;
+
 	// Use this for initialization
 	void Start () {
 		firBullet();
+		player = GameObject.Find("cameraPoint");
 	
 	}
 	
@@ -20,5 +23,13 @@ public class BulletBehaviour : MonoBehaviour {
 
 	public void firBullet(){
 		currentSpeed = bulletSpeed;
+	}
+
+	void OnTriggerEnter(Collider hit){
+		Debug.Log ("Collision");
+		if(hit.gameObject.tag == "Player"){
+			Debug.Log ("Collision happn");
+			player.GetComponent<PlayerController>()._playerState = PlayerController.PlayerState.Death;
+		}
 	}
 }
