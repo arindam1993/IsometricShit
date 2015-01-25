@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BoxFlipper : MonoBehaviour {
@@ -9,10 +9,15 @@ public class BoxFlipper : MonoBehaviour {
 	public BoxGravityState _gravityState;
 	public float boxJumpSpeed = 3.5f;
 	public bool hitState = false;
+	public float pushForce = 0.1f;
 //	public GameObject  bullet;
 	// Use this for initialization
 	void Start () {
-		_gravityState = BoxGravityState.Floor;
+		if (this.gameObject.layer == LayerMask.NameToLayer ("Roof")) {
+			_gravityState = BoxGravityState.Roof;
+		} else {
+			_gravityState = BoxGravityState.Floor;
+		}
 	}
 	
 	// Update is called once per frame
@@ -25,6 +30,7 @@ public class BoxFlipper : MonoBehaviour {
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, boxJumpSpeed * Time.deltaTime);
 				if(transform.position == finalPosition){
 					_gravityState = BoxGravityState.Roof;
+					this.gameObject.layer = LayerMask.NameToLayer("Roof");
 					hitState = false;
 				}
 			}
@@ -34,6 +40,7 @@ public class BoxFlipper : MonoBehaviour {
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, boxJumpSpeed * Time.deltaTime);
 				if(transform.position == finalPosition){
 					_gravityState = BoxGravityState.Floor;
+					this.gameObject.layer = LayerMask.NameToLayer("Floor");
 					hitState = false;
 				}
 			}
@@ -41,11 +48,13 @@ public class BoxFlipper : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider colldBox)
-	{
+	{Debug.Log (colldBox.tag);
 		if (colldBox.tag == "Projectile") {
-			Debug.Log("Collided");
-			hitState = true;
-			Destroy(colldBox.gameObject);
+						hitState = true;
+						Destroy (colldBox.gameObject);
 		}
+		if (colldBox.tag == "Player") {
+					colldBox.gameObject.GetComponent<CharacterController>().Move(colldBox.gameObject.transform.forward * -1 * pushForce);
+				}
 	}
 }

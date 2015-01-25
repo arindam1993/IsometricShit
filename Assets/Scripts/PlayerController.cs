@@ -94,9 +94,7 @@ public class PlayerController : MonoBehaviour {
 		bool switchStart = false;
 		//Idle state: play idle animation and look at mouse
 		if(_playerState == PlayerState.Idle){
-
-			anim.SetBool("idle",true);
-			anim.SetBool("movingForw",false);
+			anim.SetBool("idle", true);
 
 			if(_gravityState == GravityState.Floor)
 				_layerMask = _layerMaskFloor;
@@ -122,6 +120,7 @@ public class PlayerController : MonoBehaviour {
 			//If player presses space switch state
 			if(Input.GetKeyDown(KeyCode.Space)){
 				if(GetComponent<Inventory>().containsItems("gravityGun")){
+					anim.SetTrigger("flail");
 					_playerState = PlayerState.Switching;
 
 					//Determine the culling mask
@@ -149,8 +148,8 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if(_playerState == PlayerState.Moving){
+			anim.SetBool("idle", false);
 
-			anim.SetBool("movingForw", true); 
 
 			if (character.position.y < -1) {
 				// to stop the camera stuff
@@ -221,7 +220,6 @@ public class PlayerController : MonoBehaviour {
 		}
 		//Statw in which player switches gravity
 		if(_playerState == PlayerState.Switching){
-			anim.SetBool("flailing", true);
 			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
 			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
 			//Vector3 strafe = character.forward * Input.GetAxis("Horizontal");
@@ -347,7 +345,7 @@ public class PlayerController : MonoBehaviour {
 	public void killPlayer(){
 		_playerState = PlayerState.Death;
 		enterDeath = Time.time;
-		anim.SetTrigger("dead");
+		anim.SetTrigger("die");
 	}
 
 }

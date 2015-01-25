@@ -15,12 +15,15 @@ public class TurretBehaviour : MonoBehaviour {
 
 	public TurretState _state;
 
+	private AudioSource gunShot;
+
 
 	private float lastFireTime;
 
 	// Use this for initialization
 	void Start () {
 		_state = TurretState.Idle;
+		gunShot = GetComponent<AudioSource>();
 	
 	}
 	
@@ -31,6 +34,9 @@ public class TurretBehaviour : MonoBehaviour {
 
 			if(Time.time - lastFireTime > fireDelay){
 				GameObject firedBullet = Instantiate(bullet, bulletSpawnPoint.position, bulletSpawnPoint.rotation) as GameObject;
+				if(!gunShot.isPlaying){
+					gunShot.Play();
+				}
 				lastFireTime = Time.time;
 			}
 
