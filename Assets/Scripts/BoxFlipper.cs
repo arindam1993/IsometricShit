@@ -9,7 +9,7 @@ public class BoxFlipper : MonoBehaviour {
 	public BoxGravityState _gravityState;
 	public float boxJumpSpeed = 3.5f;
 	public bool hitState = false;
-	public float pushForce = 0.1f;
+	public float pushForce = 0.005f;
 //	public GameObject  bullet;
 	// Use this for initialization
 	void Start () {
@@ -53,8 +53,17 @@ public class BoxFlipper : MonoBehaviour {
 						hitState = true;
 						Destroy (colldBox.gameObject);
 		}
+//		if (colldBox.tag == "Player") {
+//					colldBox.gameObject.GetComponent<CharacterController>().Move(colldBox.gameObject.transform.forward * -1 * pushForce);
+//				}
+	}
+
+	void OnTriggerStay(Collider colldBox)
+	{
 		if (colldBox.tag == "Player") {
-					colldBox.gameObject.GetComponent<CharacterController>().Move(colldBox.gameObject.transform.forward * -1 * pushForce);
-				}
+			Vector3 pushVector = (this.transform.position - colldBox.gameObject.transform.position)* -1 * pushForce;
+			colldBox.gameObject.GetComponent<CharacterController>().Move(pushVector.normalized);
+		}
+		
 	}
 }
