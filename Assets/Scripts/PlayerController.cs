@@ -191,6 +191,7 @@ public class PlayerController : MonoBehaviour {
 			if(Input.GetKeyDown(KeyCode.Space)){
 				if(GetComponent<Inventory>().containsItems("gravityGun"))
 				{
+					anim.SetTrigger("flail");
 					_playerState = PlayerState.Switching;
 					if(!flipAudio.isPlaying){
 						flipAudio.Play();
