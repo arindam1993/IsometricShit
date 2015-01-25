@@ -49,6 +49,14 @@ public class PlayerController : MonoBehaviour {
 	public Transform character;
 	private Transform characterGeometry;
 
+
+	public GameObject newtage; 
+	private Animator anim; 
+
+	//Dying
+	private float enterDeath;
+	private float deathDelay = 1.0f;
+
 	//Camera
 	public Camera cullCamera;
 
@@ -58,6 +66,9 @@ public class PlayerController : MonoBehaviour {
 	//Checkpoint variables
 	public Vector3 checkpointPosition;
 	public GameObject trigger;
+
+	//Audio
+	public AudioSource flipAudio;
 
 	// Use this for initialization
 	void Start () {
@@ -69,6 +80,7 @@ public class PlayerController : MonoBehaviour {
 		controller = character.GetComponent<CharacterController>();
 		_layerMask = _layerMaskFloor;
 		g = new Vector3(0, - 10 , 0);
+		anim = newtage.GetComponent<Animator>();
 	}
 	
 	// Update is called once per frame
@@ -76,6 +88,9 @@ public class PlayerController : MonoBehaviour {
 		bool switchStart = false;
 		//Idle state: play idle animation and look at mouse
 		if(_playerState == PlayerState.Idle){
+
+			anim.SetBool("idle",true);
+			anim.SetBool("movingForw",false);
 
 			if(_gravityState == GravityState.Floor)
 				_layerMask = _layerMaskFloor;
@@ -121,7 +136,11 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if(_playerState == PlayerState.Moving){
+
+			anim.SetBool("movingForw", true); 
+
 			if (character.position.y < -1) {
+				// to stop the camera stuff
 			}
 			
 			if (character.position.y < -100) {
@@ -152,15 +171,18 @@ public class PlayerController : MonoBehaviour {
 			
 
 			//For switching to idle check velocity
-//			if(controller.velocity.magnitude < 0.2){
-//				_playerState = PlayerState.Idle;
-//			}
+			if(controller.velocity.magnitude < 0.2){
+				_playerState = PlayerState.Idle;
+			}
 
 			//Spacebar to switch to roof/floor
 			if(Input.GetKeyDown(KeyCode.Space)){
 				if(GetComponent<Inventory>().containsItems("gravityGun"))
 				{
 					_playerState = PlayerState.Switching;
+					if(!flipAudio.isPlaying){
+						flipAudio.Play();
+					}
 					
 					//Determine the culling mask
 					if(_gravityState == GravityState.Floor){
@@ -179,6 +201,7 @@ public class PlayerController : MonoBehaviour {
 		}
 		//Statw in which player switches gravity
 		if(_playerState == PlayerState.Switching){
+			anim.SetBool("flailing", true);
 			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
 			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
 			//Vector3 strafe = character.forward * Input.GetAxis("Horizontal");
@@ -274,9 +297,14 @@ public class PlayerController : MonoBehaviour {
 
 		}
 		if (_playerState == PlayerState.Death) {
+			if(Time.time - enterDeath > deathDelay)
+			{
 			Vector3 offset = new Vector3 (0, 3, 0); 
 			character.transform.position = checkpointPosition + offset;
 			_playerState = PlayerState.Idle;
+				enterDeath = Time.time;
+			}
+
 			
 		}
 		
@@ -287,6 +315,12 @@ public class PlayerController : MonoBehaviour {
 
 
 	
+	}
+
+	public void killPlayer(){
+		_playerState = PlayerState.Death;
+		enterDeath = Time.time;
+		anim.SetTrigger("dead");
 	}
 
 }

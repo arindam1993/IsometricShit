@@ -29,7 +29,7 @@ public class BulletBehaviour : MonoBehaviour {
 		Debug.Log ("Collision");
 		if(hit.gameObject.tag == "Player"){
 			Debug.Log ("Collision happn");
-			player.GetComponent<PlayerController>()._playerState = PlayerController.PlayerState.Death;
+			player.GetComponent<PlayerController>().killPlayer();
 		}
 	}
 }
