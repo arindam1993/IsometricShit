@@ -5,11 +5,41 @@ ModelImporter:
   fileIDToRecycleName:
     100000: Hallway_T_Right
     100002: //RootNode
+    100004: Hallway_T_Left
+    100006: Ceiling_Hallway_T_Right Hallway_T_Right1
+    100008: Floor_Hallway_T_Right polySurface10 Hallway_T_Right1
+    100010: Hallway_T_Right_polySurface2 Hallway_T_Right1
+    100012: Hallway_T_Right_polySurface3 Hallway_T_Right1
+    100014: Hallway_T_Right_polySurface9 Hallway_T_Right1
     400000: Hallway_T_Right
     400002: //RootNode
+    400004: Hallway_T_Left
+    400006: Ceiling_Hallway_T_Right Hallway_T_Right1
+    400008: Floor_Hallway_T_Right polySurface10 Hallway_T_Right1
+    400010: Hallway_T_Right_polySurface2 Hallway_T_Right1
+    400012: Hallway_T_Right_polySurface3 Hallway_T_Right1
+    400014: Hallway_T_Right_polySurface9 Hallway_T_Right1
     2300000: Hallway_T_Right
+    2300002: Hallway_T_Left
+    2300004: Ceiling_Hallway_T_Right Hallway_T_Right1
+    2300006: Floor_Hallway_T_Right polySurface10 Hallway_T_Right1
+    2300008: Hallway_T_Right_polySurface2 Hallway_T_Right1
+    2300010: Hallway_T_Right_polySurface3 Hallway_T_Right1
+    2300012: Hallway_T_Right_polySurface9 Hallway_T_Right1
     3300000: Hallway_T_Right
+    3300002: Hallway_T_Left
+    3300004: Ceiling_Hallway_T_Right Hallway_T_Right1
+    3300006: Floor_Hallway_T_Right polySurface10 Hallway_T_Right1
+    3300008: Hallway_T_Right_polySurface2 Hallway_T_Right1
+    3300010: Hallway_T_Right_polySurface3 Hallway_T_Right1
+    3300012: Hallway_T_Right_polySurface9 Hallway_T_Right1
     4300000: Hallway_T_Right
+    4300002: Hallway_T_Left
+    4300004: Ceiling_Hallway_T_Right Hallway_T_Right1
+    4300006: Floor_Hallway_T_Right polySurface10 Hallway_T_Right1
+    4300008: Hallway_T_Right_polySurface2 Hallway_T_Right1
+    4300010: Hallway_T_Right_polySurface3 Hallway_T_Right1
+    4300012: Hallway_T_Right_polySurface9 Hallway_T_Right1
     9500000: //RootNode
   materials:
     importMaterials: 1
