@@ -12,7 +12,7 @@ public class PickUp : MonoBehaviour {
 		if(hit.gameObject.tag == "Player"){
 			player.GetComponent<Inventory>().addItem(itemName);
 			Destroy(this.gameObject);
-			Debug.Log("Picked up:"+itemName);
+
 		}
 	}
 }

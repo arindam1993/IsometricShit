@@ -70,6 +70,12 @@ public class PlayerController : MonoBehaviour {
 	//Audio
 	public AudioSource flipAudio;
 
+	//Delay for bullets
+	public float bulletDelay = 2.0f;
+	private float startTime;
+	public GameObject bullet;
+	public Transform bulletSpawnPoint;
+
 	// Use this for initialization
 	void Start () {
 		trigger = GameObject.FindGameObjectWithTag ("ChkPntState");
@@ -131,6 +137,13 @@ public class PlayerController : MonoBehaviour {
 					}
 					switchStart = true;
 				}
+			}
+			if(Input.GetMouseButtonDown(0)){// && (startTime == 0 || Time.time - startTime > bulletDelay)){
+				if(GetComponent<Inventory>().containsItems("gravityGun"))
+				{
+					_playerState = PlayerState.Shooting;
+				}
+				startTime = Time.time;
 			}
 
 		}
@@ -197,6 +210,13 @@ public class PlayerController : MonoBehaviour {
 					}
 					switchStart = true;
 				}
+			}
+			if(Input.GetMouseButtonDown(0)){//} && (startTime == 0 || Time.time - startTime > bulletDelay)){
+				if(GetComponent<Inventory>().containsItems("gravityGun"))
+				{
+					_playerState = PlayerState.Shooting;
+				}
+				startTime = Time.time;
 			}
 		}
 		//Statw in which player switches gravity
@@ -313,7 +333,14 @@ public class PlayerController : MonoBehaviour {
 			
 		}
 
-
+		if (_playerState == PlayerState.Shooting) {
+			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
+			Debug.Log(bulletSpawnPoint.position);
+			GameObject firedBullet = Instantiate(bullet, bulletSpawnPoint.position,bulletSpawnPoint.rotation) as GameObject;
+			bullet.transform.LookAt(targetPosition);
+			bullet.transform.position = lookVector;
+			_playerState = PlayerState.Idle;
+		}
 	
 	}
 
