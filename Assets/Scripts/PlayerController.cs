@@ -107,8 +107,10 @@ public class PlayerController : MonoBehaviour {
 				Debug.Log(_layerMask);
 			}
 			// characterGeometry.LookAt(targetPosition);
-			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
-			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
+			Vector3 newTarget = new Vector3(targetPosition.x, characterGeometry.position.y, targetPosition.z);
+			Vector3 lookVector = (newTarget-characterGeometry.position).normalized; 
+			Vector3 lookVectorNoY = new Vector3(lookVector.x, 0, lookVector.z);
+			characterGeometry.rotation = Quaternion.LookRotation(lookVectorNoY,character.up); 
 
 			controller.Move(g*Time.deltaTime);
 
@@ -170,8 +172,10 @@ public class PlayerController : MonoBehaviour {
 				//Debug.Log(targetPosition);
 			}
 			// characterGeometry.LookAt(targetPosition);
-			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
-			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
+			Vector3 newTarget = new Vector3(targetPosition.x, characterGeometry.position.y, targetPosition.z);;
+			Vector3 lookVector = (newTarget-characterGeometry.position).normalized; 
+			Vector3 lookVectorNoY = new Vector3(lookVector.x, 0, lookVector.z);
+			characterGeometry.rotation = Quaternion.LookRotation(lookVectorNoY,character.up); 
 
 			Vector3 forward = characterGeometry.forward * Input.GetAxis("Vertical");
 			//Vector3 forward = -1 * character.right * Input.GetAxis("Vertical");
@@ -221,8 +225,10 @@ public class PlayerController : MonoBehaviour {
 		}
 		//Statw in which player switches gravity
 		if(_playerState == PlayerState.Switching){
-			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
-			characterGeometry.rotation = Quaternion.LookRotation(lookVector,character.up); 
+			Vector3 newTarget = new Vector3(targetPosition.x, characterGeometry.position.y, targetPosition.z);
+			Vector3 lookVector = (newTarget-characterGeometry.position).normalized; 
+			Vector3 lookVectorNoY = new Vector3(lookVector.x, 0, lookVector.z);
+			characterGeometry.rotation = Quaternion.LookRotation(lookVectorNoY,character.up);  
 			//Vector3 strafe = character.forward * Input.GetAxis("Horizontal");
 			Vector3 forward = characterGeometry.forward * Input.GetAxis("Vertical");
 			//strafe = strafe * playerGravitySpeed * Time.deltaTime;
