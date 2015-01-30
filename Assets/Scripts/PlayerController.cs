@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour {
 	//Rotation bitches
 	private Quaternion floorCameraRotation;
 	private Quaternion roofCameraRotation;
+	private float finalPositionY;
 
 	//Speeds 
 	public float cameraRotateSpeed;
@@ -48,6 +49,8 @@ public class PlayerController : MonoBehaviour {
 	private CharacterController controller;
 	public Transform character;
 	private Transform characterGeometry;
+	public float flipDelay = 1.0f;
+	private float flipStartTime;
 
 
 	public GameObject newtage; 
@@ -87,6 +90,10 @@ public class PlayerController : MonoBehaviour {
 		_layerMask = _layerMaskFloor;
 		g = new Vector3(0, - 10 , 0);
 		anim = newtage.GetComponent<Animator>();
+		RaycastHit hitUp;
+		if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
+			finalPositionY = hitUp.point.y;
+		}	
 	}
 	
 	// Update is called once per frame
@@ -104,7 +111,7 @@ public class PlayerController : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast(cullCamera.ScreenPointToRay(Input.mousePosition), out hit, 1000, _layerMask)) {
 				targetPosition = hit.point;
-				Debug.Log(_layerMask);
+//				Debug.Log(_layerMask);
 			}
 			// characterGeometry.LookAt(targetPosition);
 			Vector3 newTarget = new Vector3(targetPosition.x, characterGeometry.position.y, targetPosition.z);
@@ -120,7 +127,7 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			//If player presses space switch state
-			if(Input.GetKeyDown(KeyCode.Space)){
+			if(Input.GetKeyDown(KeyCode.Space) && (flipStartTime == 0 || Time.time - flipStartTime > flipDelay)){
 				if(GetComponent<Inventory>().containsItems("gravityGun")){
 					anim.SetTrigger("flail");
 					_playerState = PlayerState.Switching;
@@ -130,16 +137,21 @@ public class PlayerController : MonoBehaviour {
 						cullCamera.cullingMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("TransparentFX")) 
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Roof"));
+
 					}
 					if(_gravityState == GravityState.Roof){
 						cullCamera.cullingMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("TransparentFX")) 
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
+					RaycastHit hitUp;
+					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
+						finalPositionY = hitUp.point.y;
+					}
 					switchStart = true;
 				}
 			}
-			if(Input.GetMouseButtonDown(0)){// && (startTime == 0 || Time.time - startTime > bulletDelay)){
+			if(Input.GetMouseButtonDown(0) && (startTime == 0 || Time.time - startTime > bulletDelay)){
 				if(GetComponent<Inventory>().containsItems("gravityGun"))
 				{
 					_playerState = PlayerState.Shooting;
@@ -192,7 +204,7 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			//Spacebar to switch to roof/floor
-			if(Input.GetKeyDown(KeyCode.Space)){
+			if(Input.GetKeyDown(KeyCode.Space) && (flipStartTime == 0 || Time.time - flipStartTime > flipDelay)){
 				if(GetComponent<Inventory>().containsItems("gravityGun"))
 				{
 					anim.SetTrigger("flail");
@@ -212,10 +224,14 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
+					RaycastHit hitUp;
+					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
+						finalPositionY = hitUp.point.y;
+					}
 					switchStart = true;
 				}
 			}
-			if(Input.GetMouseButtonDown(0)){//} && (startTime == 0 || Time.time - startTime > bulletDelay)){
+			if(Input.GetMouseButtonDown(0) && (startTime == 0 || Time.time - startTime > bulletDelay)){
 				if(GetComponent<Inventory>().containsItems("gravityGun"))
 				{
 					_playerState = PlayerState.Shooting;
@@ -237,11 +253,11 @@ public class PlayerController : MonoBehaviour {
 
 			if(_gravityState == GravityState.Floor){
 				//Rotate camera around and flip the model
-
+				Debug.Log(finalPositionY);
 				//Debug.Log("Switching Original");
 //				Move the camera to the roof
 				Vector3 moveVector = transform.position + forward;
-				Vector3 finalPosition = new Vector3(moveVector.x, 11.85f, moveVector.z);
+				Vector3 finalPosition = new Vector3(moveVector.x, finalPositionY, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 				//Move the player to the roof
@@ -261,7 +277,7 @@ public class PlayerController : MonoBehaviour {
 					_playerState = PlayerState.Idle;
 					g *= -1;
 				}
-				if(Input.GetKeyDown(KeyCode.Space) && !switchStart){
+				if(Input.GetKeyDown(KeyCode.Space) && !switchStart && (flipStartTime == 0 || Time.time - flipStartTime > flipDelay)){
 					_playerState = PlayerState.Switching;
 					_gravityState = GravityState.Roof;
 					g *= -1;
@@ -271,6 +287,10 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
+					RaycastHit hitUp;
+					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
+						finalPositionY = hitUp.point.y;
+					}
 				}
 
 			}
@@ -279,7 +299,7 @@ public class PlayerController : MonoBehaviour {
 
 				//Move the player to the floor
 				Vector3 moveVector = transform.position + forward;
-				Vector3 finalPosition = new Vector3(moveVector.x, 3.85f, moveVector.z);
+				Vector3 finalPosition = new Vector3(moveVector.x, finalPositionY, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, playerJumpSpeed * Time.deltaTime);
 
 				//Move the player to the floor
@@ -305,7 +325,7 @@ public class PlayerController : MonoBehaviour {
 					g *= -1;
 				}
 				
-				if(Input.GetKeyDown(KeyCode.Space) && !switchStart){
+				if(Input.GetKeyDown(KeyCode.Space) && !switchStart && (flipStartTime == 0 || Time.time - flipStartTime > flipDelay)){
 					_playerState = PlayerState.Switching;
 					_layerMask = _layerMaskFloor;
 					_gravityState = GravityState.Floor;
@@ -315,6 +335,10 @@ public class PlayerController : MonoBehaviour {
 						cullCamera.cullingMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("TransparentFX")) 
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Roof"));
+					}
+					RaycastHit hitUp;
+					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
+						finalPositionY = hitUp.point.y;
 					}
 				}
 				
@@ -340,7 +364,7 @@ public class PlayerController : MonoBehaviour {
 
 		if (_playerState == PlayerState.Shooting) {
 			Vector3 lookVector = (targetPosition-characterGeometry.position).normalized; 
-			Debug.Log(bulletSpawnPoint.position);
+//			Debug.Log(bulletSpawnPoint.position);
 			GameObject firedBullet = Instantiate(bullet, bulletSpawnPoint.position,bulletSpawnPoint.rotation) as GameObject;
 			bullet.transform.LookAt(targetPosition);
 			bullet.transform.position = lookVector;

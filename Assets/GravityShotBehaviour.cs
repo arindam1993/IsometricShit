@@ -11,7 +11,7 @@ public class GravityShotBehaviour : MonoBehaviour {
 
 	private float startTime;
 
-	public float destroyTime = 0.5f;
+	public float destroyTime = 1f;
 	
 	// Use this for initialization
 	void Start () {
@@ -23,8 +23,8 @@ public class GravityShotBehaviour : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		transform.position += transform.forward * currentSpeed * Time.deltaTime;
-		Debug.Log(startTime);
-		if (Time.time - startTime > destroyTime) {
+		Debug.Log ("Hello: " + (Time.time - startTime));
+		if ((Time.time - startTime) > destroyTime) {
 			Destroy(this.gameObject);
 				}
 	}
