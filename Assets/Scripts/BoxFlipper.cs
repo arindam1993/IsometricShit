@@ -7,6 +7,8 @@ public class BoxFlipper : MonoBehaviour {
 		Floor
 	}
 	public BoxGravityState _gravityState;
+    public LayerMask _layerMaskFloor;
+    public LayerMask _layerMaskRoof;
 	public float boxJumpSpeed = 3.5f;
 	public bool hitState = false;
 	public float pushForce = 0.005f;
@@ -22,11 +24,21 @@ public class BoxFlipper : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (hitState) {			
+		if (hitState) {		
+            float finalPositionY = 0f;
 			Vector3 moveVector = transform.position;
+            //Gravity flip floor and roof detector for variable height puzzle start
+            RaycastHit hitUp;
+            float scaleY = (transform.position.normalized.y + 1000) * (_gravityState == BoxGravityState.Roof ? -1 : 1);
+            Debug.Log(scaleY);
+            Vector3 lnCastVector = new Vector3(transform.position.x,scaleY, transform.position.z);
+            if (Physics.Linecast(transform.position,lnCastVector,out hitUp,(_gravityState == BoxGravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+                finalPositionY = hitUp.point.y;
+            }
+            //Gravity flip floor and roof detector for variable height puzzle end
 			if(_gravityState == BoxGravityState.Floor)
 			{
-				Vector3 finalPosition = new Vector3(moveVector.x, 11.85f, moveVector.z);
+				Vector3 finalPosition = new Vector3(moveVector.x, finalPositionY, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, boxJumpSpeed * Time.deltaTime);
 				if(transform.position == finalPosition){
 					_gravityState = BoxGravityState.Roof;
@@ -36,7 +48,7 @@ public class BoxFlipper : MonoBehaviour {
 			}
 			else if(_gravityState == BoxGravityState.Roof)
 			{
-				Vector3 finalPosition = new Vector3(moveVector.x, 3.85f, moveVector.z);
+                Vector3 finalPosition = new Vector3(moveVector.x, finalPositionY, moveVector.z);
 				transform.position = Vector3.MoveTowards(moveVector, finalPosition, boxJumpSpeed * Time.deltaTime);
 				if(transform.position == finalPosition){
 					_gravityState = BoxGravityState.Floor;
@@ -48,14 +60,10 @@ public class BoxFlipper : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider colldBox)
-	{Debug.Log (colldBox.tag);
+	{
 		if (colldBox.tag == "Projectile") {
 						hitState = true;
-						Destroy (colldBox.gameObject);
 		}
-//		if (colldBox.tag == "Player") {
-//					colldBox.gameObject.GetComponent<CharacterController>().Move(colldBox.gameObject.transform.forward * -1 * pushForce);
-//				}
 	}
 
 	void OnTriggerStay(Collider colldBox)

@@ -23,7 +23,7 @@ public class GravityShotBehaviour : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		transform.position += transform.forward * currentSpeed * Time.deltaTime;
-		Debug.Log ("Hello: " + (Time.time - startTime));
+//		Debug.Log ("Hello: " + (Time.time - startTime));
 		if ((Time.time - startTime) > destroyTime) {
 			Destroy(this.gameObject);
 				}

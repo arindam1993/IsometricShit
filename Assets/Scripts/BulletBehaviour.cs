@@ -26,9 +26,9 @@ public class BulletBehaviour : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider hit){
-		Debug.Log ("Collision");
+//		Debug.Log ("Collision");
 		if(hit.gameObject.tag == "Player"){
-			Debug.Log ("Collision happn");
+//			Debug.Log ("Collision happn");
 			player.GetComponent<PlayerController>().killPlayer();
 		}
 	}

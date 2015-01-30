@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour {
 	private CharacterController controller;
 	public Transform character;
 	private Transform characterGeometry;
-	public float flipDelay = 1.0f;
+	public float flipDelay = 3.0f;
 	private float flipStartTime;
 
 
@@ -90,10 +90,14 @@ public class PlayerController : MonoBehaviour {
 		_layerMask = _layerMaskFloor;
 		g = new Vector3(0, - 10 , 0);
 		anim = newtage.GetComponent<Animator>();
-		RaycastHit hitUp;
-		if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
-			finalPositionY = hitUp.point.y;
-		}	
+        //Gravity flip floor and roof detector for variable height puzzle start
+        RaycastHit hitUp;
+        float scaleY = characterGeometry.transform.position.normalized.y * 1000 * (_gravityState == GravityState.Roof ? -1 : 1);
+        Vector3 lnCastVector = new Vector3(characterGeometry.transform.position.x,scaleY, characterGeometry.transform.position.z);
+        if (Physics.Linecast(characterGeometry.transform.position,lnCastVector,out hitUp,(_gravityState == GravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+            finalPositionY = hitUp.point.y;
+        }
+        //Gravity flip floor and roof detector for variable height puzzle end
 	}
 	
 	// Update is called once per frame
@@ -144,11 +148,14 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
-					RaycastHit hitUp;
-					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
-						finalPositionY = hitUp.point.y;
-					}
+                    RaycastHit hitUp;
+                    float scaleY = characterGeometry.transform.position.normalized.y * 1000 * (_gravityState == GravityState.Roof ? -1 : 1);
+                    Vector3 lnCastVector = new Vector3(characterGeometry.transform.position.x,scaleY, characterGeometry.transform.position.z);
+                    if (Physics.Linecast(characterGeometry.transform.position,lnCastVector,out hitUp,(_gravityState == GravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+                        finalPositionY = hitUp.point.y;
+                    } 
 					switchStart = true;
+                    flipStartTime = Time.time;
 				}
 			}
 			if(Input.GetMouseButtonDown(0) && (startTime == 0 || Time.time - startTime > bulletDelay)){
@@ -224,11 +231,14 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
-					RaycastHit hitUp;
-					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
-						finalPositionY = hitUp.point.y;
-					}
+                    RaycastHit hitUp;
+                    float scaleY = characterGeometry.transform.position.normalized.y * 1000 * (_gravityState == GravityState.Roof ? -1 : 1);
+                    Vector3 lnCastVector = new Vector3(characterGeometry.transform.position.x,scaleY, characterGeometry.transform.position.z);
+                    if (Physics.Linecast(characterGeometry.transform.position,lnCastVector,out hitUp,(_gravityState == GravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+                        finalPositionY = hitUp.point.y;
+                    }
 					switchStart = true;
+                    flipStartTime = Time.time;
 				}
 			}
 			if(Input.GetMouseButtonDown(0) && (startTime == 0 || Time.time - startTime > bulletDelay)){
@@ -253,7 +263,6 @@ public class PlayerController : MonoBehaviour {
 
 			if(_gravityState == GravityState.Floor){
 				//Rotate camera around and flip the model
-				Debug.Log(finalPositionY);
 				//Debug.Log("Switching Original");
 //				Move the camera to the roof
 				Vector3 moveVector = transform.position + forward;
@@ -287,16 +296,18 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Floor"));
 					}
-					RaycastHit hitUp;
-					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
-						finalPositionY = hitUp.point.y;
-					}
+                    RaycastHit hitUp;
+                    float scaleY = characterGeometry.transform.position.normalized.y * 1000 * (_gravityState == GravityState.Roof ? -1 : 1);
+                    Vector3 lnCastVector = new Vector3(characterGeometry.transform.position.x,scaleY, characterGeometry.transform.position.z);
+                    if (Physics.Linecast(characterGeometry.transform.position,lnCastVector,out hitUp,(_gravityState == GravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+                        finalPositionY = hitUp.point.y;
+                    }
+                    flipStartTime = Time.time;
 				}
 
 			}
 			else if(_gravityState == GravityState.Roof){
 				//Rotate camera around and flip the model
-
 				//Move the player to the floor
 				Vector3 moveVector = transform.position + forward;
 				Vector3 finalPosition = new Vector3(moveVector.x, finalPositionY, moveVector.z);
@@ -336,10 +347,13 @@ public class PlayerController : MonoBehaviour {
 							| (1 << LayerMask.NameToLayer("Ignore Raycast")) | (1 << LayerMask.NameToLayer("Water"))
 								| (1 << LayerMask.NameToLayer("UI")) | (1 << LayerMask.NameToLayer("Roof"));
 					}
-					RaycastHit hitUp;
-					if (Physics.Raycast(characterGeometry.transform.position,characterGeometry.transform.up,out hitUp,1000,_layerMask)){
-						finalPositionY = hitUp.point.y;
-					}
+                    RaycastHit hitUp;
+                    float scaleY = characterGeometry.transform.position.normalized.y * 1000 * (_gravityState == GravityState.Roof ? -1 : 1);
+                    Vector3 lnCastVector = new Vector3(characterGeometry.transform.position.x,scaleY, characterGeometry.transform.position.z);
+                    if (Physics.Linecast(characterGeometry.transform.position,lnCastVector,out hitUp,(_gravityState == GravityState.Roof ? _layerMaskFloor : _layerMaskRoof))){
+                        finalPositionY = hitUp.point.y;
+                    }
+                    flipStartTime = Time.time;
 				}
 				
 			}

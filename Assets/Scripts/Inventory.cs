@@ -18,7 +18,7 @@ public class Inventory : MonoBehaviour {
 	//Add Item
 	public void addItem(string item){
 		inventoryItems.Add(item);
-		Debug.Log("Picked up:"+item);
+//		Debug.Log("Picked up:"+item);
 	}
 
 	//Contains items?

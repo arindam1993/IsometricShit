@@ -16,7 +16,7 @@ public class CheckPointState : MonoBehaviour {
 			//PlayerY =(PlayerPosition.transform.position.y);
 			//PlayerZ =(PlayerPosition.transform.position.z);
 			lastPosition = PlayerPosition.transform.position;
-			Debug.Log(lastPosition);
+//			Debug.Log(lastPosition);
 		}
 	}	
 }
